@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ReportCollection;
 use App\Http\Resources\ReportResource;
-use App\Report;
-use GuzzleHttp\Client;
+use App\Services\ReportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class ReportController
@@ -18,53 +20,35 @@ class ReportController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function listReports(Request $request)
+    public function listReports(Request $request, ReportService $service)
     {
-        $apiUrl = 'https://spaceflightnewsapi.net/api/v2';
+        $params = $request->only('filter', 'per_page');
 
-        $guzzle = new Client([
-            'base_uri' => $apiUrl
-        ]);
-        $rawResult = $guzzle->get('reports')->getBody();
+        $result = $service->list($params);
 
-        $filter = $request->get('filter');
-
-        $result = [];
-
-        for ($x = 0; $x <= sizeof($rawResult); $x++) {
-            Report::create([
-                'external_id' => $rawResult[$x]['id'],
-                'title' => $rawResult[$x]['title'],
-                'url' => $rawResult[$x]['url'],
-                'summary' => $rawResult[$x]['summary']
-            ]);
-
-            if (strpos($rawResult[$x], $filter) == false) {
-                continue;
-            }
-
-            $result[] = $rawResult[$x];
-        }
-
-        return response()->json(['data' => $result]);
+        return new ReportCollection($result);
     }
 
     /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|object
      */
-    public function createReport(Request $request)
+    public function createReport(Request $request, ReportService $service)
     {
-        $report = Report::create([
-            'external_id' => $request->post('external_id'),
-            'title' => $request->post('title'),
-            'url' => $request->post('url'),
-            'summary' => $request->post('summary')
-        ]);
+        try {
+            $data = $request->validate(ReportService::getCreateValidationRules());
 
-        return (new ReportResource($report))
-            ->response()
-            ->setStatusCode(201);
+            $report = $service->create($data);
+
+            return (new ReportResource($report))
+                ->response()
+                ->setStatusCode(201);
+        } catch (ValidationException $e) {
+            return response([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
     /**
@@ -72,8 +56,10 @@ class ReportController extends Controller
      *
      * @param $reportId
      */
-    public function deleteReport($reportId)
+    public function deleteReport($reportId, ReportService $service)
     {
-        // Implementar esse endpoint.
+        $service->delete($reportId);
+
+        return response('', 204);
     }
 }

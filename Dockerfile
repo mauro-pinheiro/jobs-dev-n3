@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:fpm
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ="America/São Paulo"
@@ -50,6 +50,7 @@ RUN useradd -u 1000 -ms /bin/bash -g www www
 # Expose port 9000 and start php-fpm server
 
 #Install oh-my-bash
+USER www
 RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 
 EXPOSE 9000
