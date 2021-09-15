@@ -16,6 +16,6 @@ class SpaceFlightNewsClient
     public function getReports()
     {
         $url = "{$this->baseUri}/reports";
-        return json_decode(Http::get($url)->body(), true);
+        return Http::get($url)->throw()->json();
     }
 }

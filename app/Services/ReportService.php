@@ -9,7 +9,6 @@ use App\Http\Clients\SpaceFlightNewsClient;
 
 class ReportService
 {
-
     private $client;
 
     public static function getCreateValidationRules()
@@ -34,22 +33,26 @@ class ReportService
     public function create(array $data)
     {
         $report = $this->save($data);
-        $report->restore();
+        if ($report->trashed()) {
+            $report->restore();
+        }
         return $report;
     }
 
-    public function list($params)
+    public function list(array $params)
     {
-        $rawResult = $this->client->getReports();
+        $results = $this->client->getReports();
 
-        foreach ($rawResult as $report) {
+        foreach ($results as $report) {
             $this->save($report);
         }
 
-        return Report::filter($params)->paginate($params['per_page'] ?? null)->withQueryString();
+        return Report::filter($params)
+            ->paginate($params['per_page'] ?? null)
+            ->withQueryString();
     }
 
-    public function save($data)
+    public function save(array $data)
     {
         return Report::withTrashed()->updateOrCreate(
             ['external_id' => $data['external_id'] ?? $data['id']],
