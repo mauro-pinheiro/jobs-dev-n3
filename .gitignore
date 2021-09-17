@@ -1,4 +1,5 @@
 .env
 .env.testing
 vendor
+node_modules
 .phpunit.result.cache
