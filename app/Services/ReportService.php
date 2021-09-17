@@ -41,7 +41,7 @@ class ReportService
 
     public function list(array $params)
     {
-        $results = $this->client->getReports();
+        $results = $this->client->listReports();
 
         foreach ($results as $report) {
             $this->save($report);
