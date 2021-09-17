@@ -19,7 +19,7 @@ class CreateReportsTable extends Migration
             $table->string('title');
             $table->string('slug');
             $table->string('url');
-            $table->text('summary');
+            $table->text('summary')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

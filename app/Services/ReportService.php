@@ -59,7 +59,7 @@ class ReportService
             [
                 'title' => $data['title'],
                 'url' => $data['url'],
-                'summary' => $data['summary']
+                'summary' => $data['summary'] ?? null
             ]
         );
     }
