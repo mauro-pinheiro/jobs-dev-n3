@@ -8,6 +8,7 @@ use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 /**
  * Class ReportController
@@ -15,6 +16,16 @@ use Illuminate\Validation\ValidationException;
  */
 class ReportController extends Controller
 {
+    public function index(Request $request, ReportService $service)
+    {
+        $params = $request->only('filter', 'per_page');
+
+        $result = $service->list($params);
+
+        return Inertia::render('Home', [
+            'reports' => $result,
+        ]);
+    }
     /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse

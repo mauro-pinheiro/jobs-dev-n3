@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ReportController;
+use App\Report;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('home', function () {
-    return Inertia::render('Home');
+
+Route::get('/', function () {
+    return redirect('reports');
 });
+
+Route::get('reports', [ReportController::class, 'index']);
